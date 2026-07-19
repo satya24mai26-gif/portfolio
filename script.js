@@ -1,148 +1,103 @@
 /* ==========================================
-   Smooth Portfolio Script
+   GitHub Profile
+========================================== 
+
+fetch("https://api.github.com/users/satya24mai26-gif")
+
+.then(response => response.json())
+
+.then(data => {
+
+    document.getElementById("github-avatar").src = data.avatar_url;
+
+    document.getElementById("github-name").innerText = data.name;
+
+    document.getElementById("github-bio").innerText = data.bio;
+
+    document.getElementById("repo-count").innerText = data.public_repos;
+
+    document.getElementById("followers").innerText = data.followers;
+
+    document.getElementById("following").innerText = data.following;
+
+});
+
+/* ==========================================
+   GitHub Repository Section
 ========================================== */
 
-document.addEventListener("DOMContentLoaded", () => {
+fetch("https://api.github.com/users/satya24mai26-gif/repos?sort=updated&per_page=100")
+.then(response => response.json())
+.then(repositories => {
 
-    /* -------------------------------
-       Active Navigation Link
-    ------------------------------- */
+    const grid = document.getElementById("repository-grid");
 
-    const sections = document.querySelectorAll("section");
-    const navLinks = document.querySelectorAll("nav a");
+    repositories.forEach(repo => {
 
-    window.addEventListener("scroll", () => {
+        const card = document.createElement("div");
 
-        let current = "";
+        card.className = "github-project";
 
-        sections.forEach(section => {
+        card.innerHTML = `
+            <h3>${repo.name}</h3>
 
-            const sectionTop = section.offsetTop - 120;
+            <p>${repo.description || "No description available."}</p>
 
-            if (window.scrollY >= sectionTop) {
-                current = section.getAttribute("id");
-            }
+            <div class="repo-footer">
 
-        });
+                <span class="language">
+                    ${repo.language || "Mixed"}
+                </span>
 
-        navLinks.forEach(link => {
+                <a href="${repo.html_url}"
+                   target="_blank"
+                   class="github-btn">
 
-            link.classList.remove("active");
+                    View Repository
 
-            if (link.getAttribute("href") === "#" + current) {
-                link.classList.add("active");
-            }
+                </a>
 
-        });
+            </div>
+        `;
 
-    });
-
-
-
-
-    /* -------------------------------
-       Fade Animation
-    ------------------------------- */
-
-    const cards = document.querySelectorAll(".card");
-
-    const observer = new IntersectionObserver(entries => {
-
-        entries.forEach(entry => {
-
-            if (entry.isIntersecting) {
-
-                entry.target.style.opacity = "1";
-                entry.target.style.transform = "translateY(0px)";
-
-            }
-
-        });
-
-    }, {
-
-        threshold: 0.15
-
-    });
-
-    cards.forEach(card => {
-
-        card.style.opacity = "0";
-        card.style.transform = "translateY(40px)";
-        card.style.transition = "0.7s";
-
-        observer.observe(card);
+        grid.appendChild(card);
 
     });
 
 });
 
+/* Dashboard */
 
+fetch("https://api.github.com/users/satya24mai26-gif/repos")
 
-/* ==========================================
-   Scroll To Top Button
-========================================== */
+.then(r=>r.json())
 
-const topButton = document.createElement("button");
+.then(repos=>{
 
-topButton.innerHTML = "↑";
+let stars=0;
 
-topButton.id = "topButton";
+let languages=new Set();
 
-document.body.appendChild(topButton);
+let latest="";
 
-topButton.style.display = "none";
+repos.forEach(repo=>{
 
-window.addEventListener("scroll", () => {
+stars+=repo.stargazers_count;
 
-    if (window.scrollY > 300) {
+if(repo.language)
+languages.add(repo.language);
 
-        topButton.style.display = "block";
-
-    } else {
-
-        topButton.style.display = "none";
-
-    }
+if(!latest || repo.updated_at>latest)
+latest=repo.updated_at;
 
 });
 
-topButton.onclick = () => {
+document.getElementById("repo-total").innerHTML=repos.length;
 
-    window.scrollTo({
+document.getElementById("star-total").innerHTML=stars;
 
-        top: 0,
+document.getElementById("language-total").innerHTML=languages.size;
 
-        behavior: "smooth"
+document.getElementById("updated-date").innerHTML=latest.substring(0,10);
 
-    });
-
-};
-
-
-
-/* ==========================================
-   Top Button Style
-========================================== */
-
-topButton.style.position = "fixed";
-topButton.style.bottom = "25px";
-topButton.style.right = "25px";
-topButton.style.width = "45px";
-topButton.style.height = "45px";
-topButton.style.border = "none";
-topButton.style.borderRadius = "50%";
-topButton.style.background = "#0ea5e9";
-topButton.style.color = "white";
-topButton.style.fontSize = "20px";
-topButton.style.cursor = "pointer";
-topButton.style.boxShadow = "0 5px 15px rgba(0,0,0,.25)";
-topButton.style.zIndex = "999";
-
-
-
-/* ==========================================
-   Console Message
-========================================== */
-
-console.log("Portfolio Loaded Successfully 🚀");
+});
